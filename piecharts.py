@@ -43,9 +43,7 @@ def piecharts(ax,ratios, x, y,colors,sizetype='equal',fraction=1, minvalue=0, ma
     elif (sizetype=='linear_min_max_fraction2'):
         sum_ratios[sum_ratios<minvalue]=0                
         size=size_max/maxvalue*(sum_ratios+(maxvalue-sum_ratios)*(1-fraction))
-        size[size>size_max]=size_max     
-        #print(size)
-    
+        size[size>size_max]=size_max        
         
 
     elif (sizetype=='linear_fraction'):
