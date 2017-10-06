@@ -73,7 +73,7 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
     # If no axes are given plot to gca:
     if axes==None:
         axes=plt.gca()
-        
+                
     #Calculate size of markers from the grid spacing and figure size:
     xlim=axes.get_xlim()
     ylim=axes.get_ylim()
@@ -162,7 +162,7 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
 
         # plot sclaing piechart
         scatter_legend=plt.legend((scatter_max,scatter_max2),
-                                  ("{:.3}".format(vmax)+' '+unit_scale ,"{:.3}".format(0.5*vmax)+' '+unit_scale),
+                                  ("{:.3}".format(float(vmax))+' '+unit_scale ,"{:.3}".format(0.5*float(vmax))+' '+unit_scale),
                                    scatterpoints=1,
                                    loc=loc_scale,
                                    ncol=1,
