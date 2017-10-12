@@ -32,8 +32,6 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
     
     loc_scale:  string
                 location of the scale piechart legend, all stings acceped for 'loc' by matplotlib legend
-                unit_string: string
-                 unit to be used in the scale piecharts
                  
     units_scale:  string
                   unit after scale piecharts
@@ -42,7 +40,9 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
         
     labels:  list of str of length r
              labels for the legend describing the colors   
-    loc_legend='upper right',
+             
+    loc_legend=string
+               location of the legend, all stings acceped for 'loc' by matplotlib legend
     
     Returns
     -------
