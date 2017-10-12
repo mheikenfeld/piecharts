@@ -8,5 +8,4 @@ setup(name='piecharts',
       author_email='max.heikenfeld@physics.ox.ac.uk',
       license='GNU',
       packages=['piecharts'],
-      install_requires=['numpy','matplotlib'],
       zip_safe=False)
