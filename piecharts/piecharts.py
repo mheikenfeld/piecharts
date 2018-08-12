@@ -1,4 +1,13 @@
-def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,scale=True,loc_scale='upper left',unit_scale='',legend=False, loc_legend='upper right',labels=None,**kwarg): 
+import logging
+
+
+def piecharts(values, x, y,colors,axes=None,scaling='linear',
+              vmin=0, vmax=None,
+              scale=True,vscale=None,loc_scale='upper left',unit_scale='',fontsize_scale=None,
+              legend=False, loc_legend='upper right',
+              labels=None,
+              **kwarg
+              ): 
     """
     Plot piecharts based on the numpy array of 'ratios' with colors 'colors' to the axes 'x' and 'y'. Largely based on Manuel Metz' example on https://matplotlib.org/devdocs/gallery/api/scatter_piecharts.html
 
@@ -30,8 +39,13 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
     scale:  boolean
             plot legend with scale piechart
     
+    vscale: float
+            value to be used for the scale (use vmax if not None)
+
     loc_scale:  string
                 location of the scale piechart legend, all stings acceped for 'loc' by matplotlib legend
+                unit_string: string
+                 unit to be used in the scale piecharts
                  
     units_scale:  string
                   unit after scale piecharts
@@ -40,9 +54,7 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
         
     labels:  list of str of length r
              labels for the legend describing the colors   
-             
-    loc_legend=string
-               location of the legend, all stings acceped for 'loc' by matplotlib legend
+    loc_legend='upper right',
     
     Returns
     -------
@@ -55,11 +67,11 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
     """
     import numpy as np
     import matplotlib.pyplot as plt
-    from matplotlib import patches
     import matplotlib
     
     #turn values into numpy array if necessary:
     values=np.array(values)
+
     #    Cherck for a couple of wrong array sizes:
     if not len(colors)==values.shape[0]:
         raise ValueError('colors must be the same length as values or the first dimension of ratios')
@@ -113,7 +125,7 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
     if (scaling=='linear'):
         sum_values[sum_values<vmin]=0
         size=size_max*(sum_values/vmax)
-      
+        
 #      Other scalings than linear currently not tested/implemented properly  
 #    elif (scaling=='linear_min_max_fraction'):
 #        sum_ratios[sum_ratios<vmin]=0        
@@ -134,65 +146,72 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear', vmin=0, vmax=None,
 #        size=size_max*np.ones(ratios.shape)
     else:
         print('scaling unknown')
+        
+    if vscale is None:
+        vscale=vmax
+      
     
     # draw pies:
     
     for (i,j),n in np.ndenumerate(ratios[0]):
-        draw_pie(axes,ratios[:,i,j], x[i], y[j], size[i,j],colors, **kwarg)
+        draw_pie(axes,ratios[:,i,j], x[i], y[j], size[i,j],colors,**kwarg)
    
     
     
-    if (legend and scale) and (loc_legend == loc_scale):
-        raise ValueError("legend and scale can't be plotted to the location chose differing values for loc_legend and loc_scale")
+    # if (legend and scale) and (loc_legend == loc_scale):
+    #     raise ValueError("legend and scale can't be plotted to the location chose differing values for loc_legend and loc_scale")
 
         
     
     if scale:
-        scatter_max = plt.scatter([],[], s=size_max, marker='o', color='#555555')
-        scatter_max2= plt.scatter([],[], s=0.5*size_max, marker='o', color='#555555')
+        scatter_max = plt.scatter([],[], s=size_max*vscale/vmax, marker='o', color='#555555')
+        scatter_max2= plt.scatter([],[], s=0.5*size_max*vscale/vmax, marker='o', color='#555555')
                     
                                   
-        # get legend fontsize                           
-        fontsize_legend = plt.rcParams['legend.fontsize']  
-        fontsize_main = plt.rcParams['font.size']    
-        fontsize=matplotlib.font_manager.font_scalings[fontsize_legend]*fontsize_main
+        # get legend fontsize
+        if fontsize_scale==None:                        
+            fontsize_legend = plt.rcParams['legend.fontsize']  
+            fontsize_main = plt.rcParams['font.size']    
+            fontsize_scale=matplotlib.font_manager.font_scalings[fontsize_legend]*fontsize_main
 
         # calculate line spacing so that picharts just don't overlap:
-        spacing=0.55*72.*min_spacing/fontsize   #72pt per inch     
+        spacing=0.55*72.*min_spacing/fontsize_scale   #72pt per inch     
 
         # plot sclaing piechart
-        scatter_legend=plt.legend((scatter_max,scatter_max2),
-                                  ("{:.3}".format(float(vmax))+' '+unit_scale ,"{:.3}".format(0.5*float(vmax))+' '+unit_scale),
-                                   scatterpoints=1,
-                                   loc=loc_scale,
-                                   ncol=1,
-                                   frameon=False,
-                                   borderpad=0.5*spacing,
-                                   labelspacing=spacing,
-                                   handletextpad=0.6*spacing,
-                                   )
-    
-    if legend:
-    # Do not create legend in the following cases:
-    # No labels given:
-        if (labels==None):
-            raise ValueError('No labels given, no legend plotted')
-        #Difference in length between the lists colors and labels
-        if not (len(colors)==len(labels)):
-            raise ValueError('length of labels does not match length of colors, no legend plotted')       
-        # Otherwise create legend:
-        else:
-                patches_legend=[]
-                for i,label in enumerate(labels):
-                    patches_legend.append(patches.Patch(color=colors[i], label=label))
-                legend_colors=axes.legend(handles=patches_legend,loc=loc_legend,frameon=True)
+        scatter_legend=axes.legend((scatter_max,scatter_max2),
+                                  ("{:0.4g}".format(float(vscale))+' '+unit_scale ,"{:0.4g}".format(0.5*float(vscale))+' '+unit_scale),
+                                    scatterpoints=1,
+                                    loc=loc_scale,
+                                    ncol=1,
+                                    frameon=False,
+                                    borderpad=0.5*spacing,
+                                    labelspacing=spacing,
+                                    handletextpad=0.6*spacing,
+                                    fontsize=fontsize_scale
+                                    )
         axes.add_artist(scatter_legend)
+
+    # if legend:
+    # # Do not create legend in the following cases:
+    # # No labels given:
+    #     if (labels==None):
+    #         raise ValueError('No labels given, no legend plotted')
+    #     #Difference in length between the lists colors and labels
+    #     if not (len(colors)==len(labels)):
+    #         raise ValueError('length of labels does not match length of colors, no legend plotted')       
+    #     # Otherwise create legend:
+    #     else:
+    #             patches_legend=[]
+    #             for i,label in enumerate(labels):
+    #                 patches_legend.append(patches.Patch(color=colors[i], label=label))
+    #             legend_colors=axes.legend(handles=patches_legend,loc=loc_legend,frameon=True)
+    #             axes.add_artist(scatter_legend)
     
     return axes
 
 # Subfunction drawing individual pies
 
-def draw_pie(ax,ratios, X, Y, size,colors,edgecolor='None', **kwarg):
+def draw_pie(ax,ratios, X, Y, size,colors,edgecolor='None',angle_segments=10,**kwarg):
     import numpy as np
 
     xy = []
@@ -201,15 +220,17 @@ def draw_pie(ax,ratios, X, Y, size,colors,edgecolor='None', **kwarg):
     #print(colors)
     for n in range(len(ratios)):
         ratio=ratios[n]
-        x = [0] + np.cos(np.linspace(2*np.pi*start,2*np.pi*(start+ratio), ratio*500)).tolist()
-        y = [0] + np.sin(np.linspace(2*np.pi*start,2*np.pi*(start+ratio), ratio*500)).tolist()
+        n_points=max(4,int(ratio*360/angle_segments))
+        buffer=0.2*2*np.pi/360.
+        x = [0] + np.cos(np.linspace(2*np.pi*start-buffer,2*np.pi*(start+ratio)+buffer, n_points)).tolist()
+        y = [0] + np.sin(np.linspace(2*np.pi*start-buffer,2*np.pi*(start+ratio)+buffer, n_points)).tolist()
         xy1 = list(zip(x,y))
-        xy.append(xy1)
+        xy.append(xy1)    
         start += ratio
         s2[n] = max(max(x), max(y))
     for i, xyi in enumerate(xy):
         #print(colors[i])
-        if ratios[i]>0:
+        if ratios[i]>0.001:
             ax.scatter(X,Y , marker=(xyi,0), s=size, facecolor=colors[i] ,edgecolor=edgecolor, **kwarg)
     
 
