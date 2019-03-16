@@ -120,7 +120,7 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear',
     size=np.zeros(ratios[0].shape)
 
     if vmax is None:
-            vmax=np.nanmax(sum_values)
+            vmax=round_to_n_sign(np.nanmax(sum_values),2)
     
     if (scaling=='linear'):
         sum_values[sum_values<vmin]=0
@@ -150,7 +150,6 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear',
     if vscale is None:
         vscale=vmax
       
-    
     # draw pies:
     
     for (i,j),n in np.ndenumerate(ratios[0]):
@@ -233,4 +232,7 @@ def draw_pie(ax,ratios, X, Y, size,colors,edgecolor='None',angle_segments=10,**k
         if ratios[i]>0.001:
             ax.scatter(X,Y , marker=(xyi,0), s=size, facecolor=colors[i] ,edgecolor=edgecolor, **kwarg)
     
-
+def round_to_n_sign(x,n):
+    # Subfunction truncating variable to n significant digits
+    exponent=-int(np.floor(np.log10(np.abs(x))))+n-1
+    return np.round(x, decimals=exponent)
