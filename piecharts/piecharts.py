@@ -1,7 +1,8 @@
 import logging
 
 
-def piecharts(values, x, y,colors,axes=None,scaling='linear',
+def piecharts(values, x, y,colors,axes=None,
+              scaling='linear',fraction_scaling=1,
               vmin=0, vmax=None,
               scale=True,vscale=None,loc_scale='upper left',unit_scale='',fontsize_scale=None,
               legend=False, loc_legend='upper right',
@@ -29,6 +30,9 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear',
            
     scaling= str
              scaling of the size of the piecharts (currently only 'linear' implemented)
+             
+    fraction_scaling= scalar
+            value used to scale the size of the piecharts for scaling that is not proportional (0-1, 1 for proportional)
              
     vmin:  scalar
            value for the sum of ratios at which to truncate plotting a piechart
@@ -126,24 +130,17 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear',
         sum_values[sum_values<vmin]=0
         size=size_max*(sum_values/vmax)
         
-#      Other scalings than linear currently not tested/implemented properly  
-#    elif (scaling=='linear_min_max_fraction'):
-#        sum_ratios[sum_ratios<vmin]=0        
-#        size=size_max/maxvalue*fraction*sum_ratios  +  size_max*(1-fraction)
-#        size[size>size_max]=size_max     
-#        #print(size)
-#        
-#    elif (scaling=='linear_min_max_fraction2'):
-#        sum_ratios[sum_ratios<vmin]=0                
-#        size=size_max/maxvalue*(sum_ratios+(maxvalue-sum_ratios)*(1-fraction))
-#        size[size>size_max]=size_max        
-#        
-#
-#    elif (scaling=='linear_fraction'):
-#        maxvalue=np.nanmax(sum_ratios)
-#        size=size_max/maxvalue*(sum_ratios+(maxvalue-sum_ratios)*(1-fraction))
-#    elif (scaling=='equal'):
-#        size=size_max*np.ones(ratios.shape)
+    elif (scaling=='linear_fraction'):
+        if fraction_scaling>1 or fraction_scaling<=0:
+            raise ValueError('fraction_scaling has to be between 0 and 1')
+        size=size_max/vmax*fraction_scaling*sum_values+size_max*(1-fraction_scaling)
+        size[sum_values<vmin]=0                
+
+    elif (scaling=='equal'):
+        size=size_max*np.ones(ratios.shape[1:])
+        size[sum_values<vmin]=0
+        scale=False
+        
     else:
         print('scaling unknown')
         
@@ -177,8 +174,21 @@ def piecharts(values, x, y,colors,axes=None,scaling='linear',
         spacing=0.55*72.*min_spacing/fontsize_scale   #72pt per inch     
 
         # plot sclaing piechart
-        scatter_legend=axes.legend((scatter_max,scatter_max2),
-                                  ("{:0.4g}".format(float(vscale))+' '+unit_scale ,"{:0.4g}".format(0.5*float(vscale))+' '+unit_scale),
+        #choose formatting of numbers based on value of vmax to avoid expontential format for values in easily readable range
+        if (vmax>=10000) or (vmax <0.02):
+            format_str="{:0.2e}"
+        else:
+            format_str="{:0.2f}"
+
+        if scaling is 'linear':
+            scale_value=(scatter_max,scatter_max2)
+            scale_text=(format_str.format(float(vscale))+' '+unit_scale ,format_str.format(0.5*float(vscale))+' '+unit_scale)
+        else:
+            scale_value=(scatter_max,)
+            scale_text=(format_str.format(float(vscale))+' '+unit_scale,)
+
+        scatter_legend=axes.legend( scale_value,
+                                    scale_text,
                                     scatterpoints=1,
                                     loc=loc_scale,
                                     ncol=1,
