@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 
 
 def piecharts(values, x, y,colors,axes=None,
@@ -69,7 +70,6 @@ def piecharts(values, x, y,colors,axes=None,
     **kwargs :  `~matplotlib.collections.` properties to be passed to patplotlib.pyplot.scatter
     e.g. zorder, rasterized,...
     """
-    import numpy as np
     import matplotlib.pyplot as plt
     import matplotlib
     
@@ -221,8 +221,6 @@ def piecharts(values, x, y,colors,axes=None,
 # Subfunction drawing individual pies
 
 def draw_pie(ax,ratios, X, Y, size,colors,edgecolor='None',angle_segments=10,**kwarg):
-    import numpy as np
-
     xy = []
     start = 0.
     s2=np.zeros(ratios.shape)
