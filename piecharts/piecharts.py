@@ -175,10 +175,16 @@ def piecharts(values, x, y,colors,axes=None,
 
         # plot sclaing piechart
         #choose formatting of numbers based on value of vmax to avoid expontential format for values in easily readable range
-        if (vmax>=10000) or (vmax <0.02):
+        if (vmax <0.02):
             format_str="{:0.2e}"
-        else:
+        elif (vmax>=0.02) and (vmax<100):
             format_str="{:0.2f}"
+        elif (vmax>=10) and (vmax<100):
+            format_str="{:0.1f}"
+        elif (vmax>=100) and (vmax<10000):
+            format_str="{:0.0f}"
+        elif (vmax>=10000):
+            format_str="{:0.2e}"
 
         if scaling is 'linear':
             scale_value=(scatter_max,scatter_max2)
