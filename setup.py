@@ -1,7 +1,8 @@
 from setuptools import setup
 
 setup(name='piecharts',
-      version='0.1',
+      use_scm_version=True,
+      setup_requires=['setuptools_scm'],
       description='Plot an array of piecharts on matplotlib',
       url='http://github.com/mheikenfeld/piecharts',
       author='Max Heikenfeld',
