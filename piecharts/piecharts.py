@@ -124,7 +124,12 @@ def piecharts(values, x, y,colors,axes=None,
     size=np.zeros(ratios[0].shape)
 
     if vmax is None:
-            vmax=round_to_n_sign(np.nanmax(sum_values),2)
+            sum_values_max=np.nanmax(sum_values)
+            if np.isfinite(sum_values_max):
+                vmax=round_to_n_sign(np.nanmax(sum_values),2)
+            else:
+                vmax=np.nan
+                scale=False
     
     if (scaling=='linear'):
         sum_values[sum_values<vmin]=0
