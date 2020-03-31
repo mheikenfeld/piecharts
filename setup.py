@@ -7,6 +7,6 @@ setup(name='piecharts',
       url='http://github.com/mheikenfeld/piecharts',
       author='Max Heikenfeld',
       author_email='max.heikenfeld@physics.ox.ac.uk',
-      license='GNU',
+      license='BSD-3-Clause',
       packages=['piecharts'],
       zip_safe=False)
